@@ -1,16 +1,14 @@
 classdef MFIs < ALGORITHM
 % <multi> <real/binary/permutation> <constrained/none>
 % Simultaneous Feature and Instance Selection via Evolutionary Multiform Search
-% 7,11,13,18,23,25,27,29,33,35,36,37,40,15,28,42,50,26,41,51,30
-% 30,27,7,11,23,25,40,35,29,37,50,36,33,18,42,41,13,51,28,15,26
-
 %------------------------------- Reference --------------------------------
-% Simultaneous Feature and Instance Selection via Evolutionary Multiform Search
+% Ruwang Jiao, Bing Xue, and Mengjie Zhang, Simultaneous Feature and Instance
+% Selection via Evolutionary Multiform Search.
 %------------------------------- Copyright --------------------------------
 % Copyright (c) 2021 BIMK Group. You are free to use the PlatEMO for
 % research purposes. All publications which use this platform or any code
 % in the platform should acknowledge the use of "PlatEMO" and reference "Ye
-% Tian, Ran Cheng, Xingyi Zhang, and Yaochu Jin, PlatEMO: A MATLAB platform
+% Ye Tian, Ran Cheng, Xingyi Zhang, and Yaochu Jin, PlatEMO: A MATLAB platform
 % for evolutionary multi-objective optimization [educational forum], IEEE
 % Computational Intelligence Magazine, 2017, 12(4): 73-87".
 %--------------------------------------------------------------------------
@@ -22,7 +20,7 @@ classdef MFIs < ALGORITHM
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
             
-            %% Generate random population
+            %% Generate the target and source populations
             TargetPop = InitializePopulation(Problem);
             SourcePop = TargetPop;   
             initialE  = max(max(0, TargetPop.cons), [], 1);
@@ -41,7 +39,7 @@ classdef MFIs < ALGORITHM
                 [SourcePop, FrontNoSP, ~          ] = EnvironmentalSelection([SourcePop, Offspring], Problem.N, epsn);
 
                 %%%%% Applied to the test set %%%%%
-                TargetPop = FSTraining2Test(Problem, TargetPop);
+                %TargetPop = FSTraining2Test(Problem, TargetPop);
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             end
         end
@@ -74,7 +72,7 @@ end
 
 
 function epsn = ReduceBoundary(eF, k, MaxK)
-    %% Reduce the epsilon constraint boundary for source task
+    %% Reduce the epsilon constraint boundary for the source task
     z        = 1e-8;
     Nearzero = 1e-15;
     B        = MaxK./power(log((eF + z)./z), 1.0./10);
@@ -93,6 +91,7 @@ function Population = InitializePopulation(Problem)
     ClassCategory = unique(Problem.TrainOut);
     ClassNum = size(ClassCategory, 1);
 
+    % Latin hypercube sampling
     lhs_samples = lhsdesign(Problem.N, 2);
     fea_range = [1/FeaNum, 0.9];
     ins_range = [ClassNum/InsNum, 0.9];
@@ -100,7 +99,7 @@ function Population = InitializePopulation(Problem)
     num = [fea_range(1) + lhs_samples(:, 1)*(fea_range(2)-fea_range(1)), ins_range(1) + lhs_samples(:, 2)*(ins_range(2)-ins_range(1))];
 
     % Initialize subsolutions for selected features
-    for i = 1 : Problem.N
+    for i = 1:Problem.N
         j = randperm(FeaNum, round(num(i, 1)*FeaNum));
         Pop(i, j) = 1;
     end
@@ -114,7 +113,7 @@ function Population = InitializePopulation(Problem)
         ClassIns{i} = find(Problem.TrainOut==ClassCategory(i, :));
     end
 
-    for i = 1 : Problem.N
+    for i = 1:Problem.N
         selnum = round(num(i, 2)*InsNum);
         for j=1:ClassNum
             SelClassInsNum{j} = zeros(size(ClassIns{j}));
