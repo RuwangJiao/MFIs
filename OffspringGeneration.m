@@ -1,6 +1,5 @@
 function Offspring = OffspringGeneration(Parent)
-    
-    %% Parameter setting
+    %% Offspring generation of MFIs
     [proC, proM] = deal(1, 1);
     Problem = PROBLEM.Current();
     [InsNum, FeaNum] = size(Problem.TrainIn);
@@ -12,7 +11,6 @@ function Offspring = OffspringGeneration(Parent)
     Parent1 = Parent(1:floor(end/2), :);
     Parent2 = Parent(floor(end/2) + 1:floor(end/2)*2, :);
     [N, D]  = size(Parent1);
-
     
     %% Genetic operators for binary encoding
     % One point crossover
@@ -27,7 +25,6 @@ function Offspring = OffspringGeneration(Parent)
     Site = rand(2*N, D) < proM/D;
     Offspring(Site) = ~Offspring(Site);
 
-    
     % repair duplicated feature subsolutions
     boolis = ismember(Offspring(:, :), Parent(:, :), 'rows');
     normal = Offspring(boolis==0, 1:end);
@@ -51,39 +48,6 @@ function Offspring = OffspringGeneration(Parent)
         end
     end
 
-
-%     % repair duplicated feature subsolutions
-%     boolis = ismember(Offspring(:, 1:FeaNum), Parent(:, 1:FeaNum), 'rows');
-%     normal = Offspring(boolis==0, 1:end);
-%     duplic = Offspring(boolis==1, 1:end);
-%     for i =1:size(duplic, 1)
-%         index1 = find( duplic(i, :));
-%         index2 = find(~duplic(i, :));
-%         if size(index1, 2) > 0
-%             duplic(i, index1(randi(end, 1, 1))) = 0;
-%         end
-%         if size(index2, 2) > 0
-%             duplic(i, index2(randi(end, 1, 1))) = 1;
-%         end
-%     end
-%     Offspring = [normal; duplic];
-%     % repair duplicated instance subsolutions
-%     boolis = ismember(Offspring(:, FeaNum+1:end), Parent(:, FeaNum+1:end), 'rows');
-%     normal = Offspring(boolis==0, 1:end);
-%     duplic = Offspring(boolis==1, 1:end);
-%     for i =1:size(duplic, 1)
-%         index1 = find( duplic(i, :));
-%         index2 = find(~duplic(i, :));
-%         if size(index1, 2) > 0
-%             duplic(i, index1(randi(end, 1, 1))) = 0;
-%         end
-%         if size(index2, 2) > 0
-%             duplic(i, index2(randi(end, 1, 1))) = 1;
-%         end
-%     end
-%     Offspring = [normal; duplic];
-
-
     if Problem.M == 3
         % Repair solutions that do not select any instance for the given class
         ClassCategory = unique(Problem.TrainOut);
@@ -105,7 +69,6 @@ function Offspring = OffspringGeneration(Parent)
         end
         Offspring(:, 1:FeaNum) = PopFea;
     end
-        
    
     Offspring = SOLUTION(Offspring);
 end
